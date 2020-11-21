@@ -20,6 +20,16 @@ This script can be called by a cron at a specific time  to download the day's lo
 # Change Log
 All notable changes to this project will be documented in this section.
 
+## [0.3] - 2020-11-22
+### Changed
+- Moved D_STAMP from a global variable to within __main__ and using a single variable
+- Turning dict items to lowercase within get_links_from_file()
+- Moved filename in __main__ to a variable for re-use and ease of change
+### Added
+- Check if the set file exists in the cwd
+- Checks for the presence of the file in the cwd and exits if not present
+- Created new function for opening the file as opposed to having this done in __main__
+- Regex HTTP protocol validation
 ## [0.2] - 2020-10-22
 ### Changed
 - Set the D_STAMP global variables to uppercase

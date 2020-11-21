@@ -1,16 +1,30 @@
 import datetime
 import json
+import os
 import re
 import requests
+import sys
 
-# Generate datestamp for unique file names
-D_STAMP = datetime.datetime.today()
-D_STAMP = D_STAMP.strftime('%m%d%Y_%H%M%S')
 
+def get_links_from_file(filename):
+    """Read in JSON file containing list of links
+       ond convert all characters to lowercase.
+       :param filename: string
+    """
+    try:
+        with open(filename) as json_file:
+            url_json_object = json.load(json_file)
+            # Ensure all dict items are lower case
+            url_json_object = {k.lower(): [i.lower() for i in v] for k, v in url_json_object.items()}
+    except IOError as e:
+        print("An error has occurred: {}".format(e))
+        sys.exit()
+    return url_json_object
+            
 
 def get_log(url, filename):
     """
-    Function to download the log files and save them locally.
+    Download the log files and save them locally.
     Set User-Agent when accessing websites to LogFetcher3000.
     :param url: list
     :param filename: string
@@ -22,22 +36,30 @@ def get_log(url, filename):
 
 
 if __name__ == '__main__':
-    with open('links.json') as json_file:
-        url_json_object = json.load(json_file)
-    access_links = url_json_object["access"]
-    error_links = url_json_object["error"]
-    """
-    Loop through each list under the given key in the dict.
-    This allows for scalability of the script.
-    Using the if statements in case the dict value is empty.
-    """
+    links_filename = "links.json"
+    if not os.path.exists(links_filename):
+        print("An error has ocurred. Cannot find JSON file: {}".format(links_filename))
+        sys.exit()
+    date_stamp = datetime.datetime.today().strftime('%m%d%Y_%H%M%S')
+    url_object = get_links_from_file(links_filename)
+    access_links = url_object["access"]
+    error_links = url_object["error"]
+
     for i in range(len(access_links)):
         if access_links[i]:
-            log_filename = access_links[i].split('/')
-            log_filename = log_filename[3]
-            get_log(access_links[i], '{}_access_{}.log'.format(log_filename, D_STAMP))
+            if not re.search('^https?://', access_links[i]):
+                print("Incorrrect protocol used:", access_links[i])
+                continue # Move on to the next iteration in the loop
+            else:
+                log_filename = access_links[i].split('/')
+                log_filename = log_filename[3]
+                get_log(access_links[i], '{}_access_{}.log'.format(log_filename, date_stamp))
     for i in range(len(error_links)):
         if error_links[i]:
-            log_filename = re.findall('.*account_name=([^&]*)', error_links[i])
-            log_filename = log_filename[0]
-            get_log(error_links[i], '{}_error_{}.log'.format(log_filename, D_STAMP))
+            if not re.search('^https?://', error_links[i]):
+                print("Incorrrect protocol used:", error_links[i])
+                continue # Move on to the next iteration in the loop
+            else:
+                log_filename = re.findall('.*account_name=([^&]*)', error_links[i])
+                log_filename = log_filename[0]
+                get_log(error_links[i], '{}_error_{}.log'.format(log_filename, date_stamp))
