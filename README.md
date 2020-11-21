@@ -20,7 +20,7 @@ This script can be called by a cron at a specific time  to download the day's lo
 # Change Log
 All notable changes to this project will be documented in this section.
 
-## [0.3] - 2020-11-22
+## [0.3] - 2020-11-21
 ### Changed
 - Moved D_STAMP from a global variable to within __main__ and using a single variable
 - Turning dict items to lowercase within get_links_from_file()
