@@ -1,10 +1,27 @@
+import argparse
 import datetime
 import json
+import logging
 import os
 import re
 import requests
 import sys
 
+parser = argparse.ArgumentParser()
+parser.add_argument('-v', '--verbose', help="Toggle verbose debug logging", action="store_true")
+args = parser.parse_args()
+
+error_logger = logging.getLogger()
+error_logger.setLevel(logging.ERROR)
+
+output_file_handler = logging.FileHandler("debug.log")
+stdout_handler = logging.StreamHandler(sys.stdout)
+
+if args.verbose:
+    error_logger.addHandler(output_file_handler)
+    error_logger.addHandler(stdout_handler)
+else:    
+    error_logger.addHandler(output_file_handler)
 
 def get_links_from_file(filename):
     """Read in JSON file containing list of links
@@ -31,8 +48,11 @@ def get_log(url, filename):
     """
     headers = {'User-Agent': 'LogFetcher3000'}
     r = requests.get(url, allow_redirects=True, headers=headers)
-    with open(filename, 'wb') as f:
-        f.write(r.content)
+    if r.status_code == 200:
+        with open(filename, 'wb') as f:
+            f.write(r.content)
+    else:
+        logging.error("Unexpected HTTP response code received: {}".format(r.status_code))
 
 
 if __name__ == '__main__':
@@ -48,7 +68,7 @@ if __name__ == '__main__':
     for i in range(len(access_links)):
         if access_links[i]:
             if not re.search('^https?://', access_links[i]):
-                print("Incorrrect protocol used:", access_links[i])
+                logging.error("Incorrect protocol used: {}".format(access_links[i]))
                 continue # Move on to the next iteration in the loop
             else:
                 log_filename = access_links[i].split('/')
@@ -57,7 +77,7 @@ if __name__ == '__main__':
     for i in range(len(error_links)):
         if error_links[i]:
             if not re.search('^https?://', error_links[i]):
-                print("Incorrrect protocol used:", error_links[i])
+                logging.error("Incorrect protocol used: {}".format(error_links[i]))
                 continue # Move on to the next iteration in the loop
             else:
                 log_filename = re.findall('.*account_name=([^&]*)', error_links[i])

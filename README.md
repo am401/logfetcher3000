@@ -20,6 +20,11 @@ This script can be called by a cron at a specific time  to download the day's lo
 # Change Log
 All notable changes to this project will be documented in this section.
 
+## [0.3.1] - 2020-11-23
+### Added
+- Argparse to handle verbose debug error output
+- Logging module to take over logging errors within the application as opposed to using print statements
+- Ensuring requests are returning 200 response codes when downloading files
 ## [0.3] - 2020-11-21
 ### Changed
 - Moved D_STAMP from a global variable to within __main__ and using a single variable
