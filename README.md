@@ -14,7 +14,7 @@ The links can be obtained from within the `WP Admin Dashboard` within the WPE MU
 This script can be called by a cron at a specific time  to download the day's logs. For example to grab the logs on the hour every hour:
 
 ```
-0 * * * * cd /path/to/logfetcher3000 && /usr/local/bin/python3 logfetcher3000.py
+59 17 * * * bash -c 'cd /path/to/logfetcher3000 && source env/bin/activate && python3 logfetcher3000.py'
 ```
 
 # Change Log
