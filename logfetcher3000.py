@@ -7,9 +7,26 @@ import re
 import requests
 import sys
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-v', '--verbose', help="Toggle verbose debug logging", action="store_true")
-args = parser.parse_args()
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-v', '--verbose', help='Toggle verbose debug logging', action='store_true')
+    parser.add_argument('-f', '--file', help='Specify file to load in to application', type=file_exists)
+    args = parser.parse_args()
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit()
+    else:
+        return args
+
+
+def file_exists(filename):
+    if os.path.isfile(filename):
+        return filename
+    else:
+        raise argparse.ArgumentTypeError(
+            "The file {} does not exist".format(filename))
+
 
 error_logger = logging.getLogger()
 error_logger.setLevel(logging.ERROR)
@@ -17,6 +34,8 @@ error_logger.setLevel(logging.ERROR)
 output_file_handler = logging.FileHandler("debug.log")
 stdout_handler = logging.StreamHandler(sys.stdout)
 
+# def error_logging():
+args = parse_args()
 if args.verbose:
     error_logger.addHandler(output_file_handler)
     error_logger.addHandler(stdout_handler)
@@ -36,6 +55,8 @@ def get_links_from_file(filename):
     except IOError as e:
         print("An error has occurred: {}".format(e))
         sys.exit()
+    except ValueError as e:
+        print("An error has occurred: {}".format(e))
     return url_json_object
             
 
@@ -56,10 +77,16 @@ def get_log(url, filename):
 
 
 if __name__ == '__main__':
-    links_filename = "links.json"
+    # args = parse.args()
+    if not args.file:
+        links_filename = "links.json"
+    else:
+        links_filename = args.file
+    """
     if not os.path.exists(links_filename):
         print("An error has ocurred. Cannot find JSON file: {}".format(links_filename))
         sys.exit()
+    """
     date_stamp = datetime.datetime.today().strftime('%m%d%Y_%H%M%S')
     url_object = get_links_from_file(links_filename)
     access_links = url_object["access"]
