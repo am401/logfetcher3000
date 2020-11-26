@@ -28,19 +28,22 @@ def file_exists(filename):
             "The file {} does not exist".format(filename))
 
 
-error_logger = logging.getLogger()
-error_logger.setLevel(logging.ERROR)
+def log_error_msg(msg):
+    error_logger = logging.getLogger()
+    error_logger.setLevel(logging.ERROR)
 
-output_file_handler = logging.FileHandler("debug.log")
-stdout_handler = logging.StreamHandler(sys.stdout)
+    output_file_handler = logging.FileHandler("debug.log")
+    stdout_handler = logging.StreamHandler(sys.stdout)
 
-# def error_logging():
-args = parse_args()
-if args.verbose:
-    error_logger.addHandler(output_file_handler)
-    error_logger.addHandler(stdout_handler)
-else:    
-    error_logger.addHandler(output_file_handler)
+    args = parse_args()
+    if args.verbose:
+        error_logger.addHandler(output_file_handler)
+        error_logger.addHandler(stdout_handler)
+    else:    
+        error_logger.addHandler(output_file_handler)
+
+    logging.error(msg)
+
 
 def get_links_from_file(filename):
     """Read in JSON file containing list of links
@@ -73,20 +76,16 @@ def get_log(url, filename):
         with open(filename, 'wb') as f:
             f.write(r.content)
     else:
-        logging.error("Unexpected HTTP response code received: {}".format(r.status_code))
+        #logging.error("Unexpected HTTP response code received: {}".format(r.status_code))
+        log_error_msg("Unexpected HTTP response code received: {}".format(r.status_code))
 
 
 if __name__ == '__main__':
-    # args = parse.args()
+    args = parse_args()
     if not args.file:
         links_filename = "links.json"
     else:
         links_filename = args.file
-    """
-    if not os.path.exists(links_filename):
-        print("An error has ocurred. Cannot find JSON file: {}".format(links_filename))
-        sys.exit()
-    """
     date_stamp = datetime.datetime.today().strftime('%m%d%Y_%H%M%S')
     url_object = get_links_from_file(links_filename)
     access_links = url_object["access"]
@@ -95,7 +94,8 @@ if __name__ == '__main__':
     for i in range(len(access_links)):
         if access_links[i]:
             if not re.search('^https?://', access_links[i]):
-                logging.error("Incorrect protocol used: {}".format(access_links[i]))
+                log_error_msg("Incorrect protocol used: {}".format(access_links[i]))
+                #logging.error("Incorrect protocol used: {}".format(access_links[i]))
                 continue # Move on to the next iteration in the loop
             else:
                 log_filename = access_links[i].split('/')
@@ -104,7 +104,8 @@ if __name__ == '__main__':
     for i in range(len(error_links)):
         if error_links[i]:
             if not re.search('^https?://', error_links[i]):
-                logging.error("Incorrect protocol used: {}".format(error_links[i]))
+                log_error_msg("Incorrect protocol used: {}".format(access_links[i]))
+                #logging.error("Incorrect protocol used: {}".format(error_links[i]))
                 continue # Move on to the next iteration in the loop
             else:
                 log_filename = re.findall('.*account_name=([^&]*)', error_links[i])
