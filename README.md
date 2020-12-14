@@ -20,6 +20,10 @@ This script can be called by a cron at a specific time  to download the day's lo
 # Change Log
 All notable changes to this project will be documented in this section.
 
+## [0.3.2] - 2020-12-13
+### Changed
+- Reverted logging capability from a function due to a bug being introduced causing repeated error msg output
+- Added default filename to file argparse
 ## [0.3.1] - 2020-11-23
 ### Added
 - Argparse to handle verbose debug error output

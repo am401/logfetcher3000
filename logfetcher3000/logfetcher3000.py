@@ -11,13 +11,13 @@ import sys
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--verbose', help='Toggle verbose debug logging', action='store_true')
-    parser.add_argument('-f', '--file', help='Specify file to load in to application', type=file_exists)
+    parser.add_argument('-f', '--file', default='links.json', help='Specify file to load in to application', type=file_exists)
     args = parser.parse_args()
-    if len(sys.argv) == 1:
-        parser.print_help()
-        sys.exit()
-    else:
-        return args
+    #if len(sys.argv) == 1:
+    #    parser.print_help()
+    #    sys.exit()
+    #else:
+    return args
 
 
 def file_exists(filename):
@@ -28,21 +28,21 @@ def file_exists(filename):
             "The file {} does not exist".format(filename))
 
 
-def log_error_msg(msg):
-    error_logger = logging.getLogger()
-    error_logger.setLevel(logging.ERROR)
+#def log_error_msg(msg):
+error_logger = logging.getLogger()
+error_logger.setLevel(logging.ERROR)
 
-    output_file_handler = logging.FileHandler("debug.log")
-    stdout_handler = logging.StreamHandler(sys.stdout)
+output_file_handler = logging.FileHandler("debug.log")
+stdout_handler = logging.StreamHandler(sys.stdout)
 
-    args = parse_args()
-    if args.verbose:
+args = parse_args()
+if args.verbose:
+    error_logger.addHandler(output_file_handler)
+    error_logger.addHandler(stdout_handler)
+else:    
         error_logger.addHandler(output_file_handler)
-        error_logger.addHandler(stdout_handler)
-    else:    
-        error_logger.addHandler(output_file_handler)
 
-    logging.error(msg)
+    #logging.error(msg)
 
 
 def get_links_from_file(filename):
@@ -76,16 +76,13 @@ def get_log(url, filename):
         with open(filename, 'wb') as f:
             f.write(r.content)
     else:
-        #logging.error("Unexpected HTTP response code received: {}".format(r.status_code))
-        log_error_msg("Unexpected HTTP response code received: {}".format(r.status_code))
+        logging.error("Unexpected HTTP response code received: {}".format(r.status_code))
+        #log_error_msg("Unexpected HTTP response code received: {}".format(r.status_code))
 
 
 if __name__ == '__main__':
     args = parse_args()
-    if not args.file:
-        links_filename = "links.json"
-    else:
-        links_filename = args.file
+    links_filename = args.file
     date_stamp = datetime.datetime.today().strftime('%m%d%Y_%H%M%S')
     url_object = get_links_from_file(links_filename)
     access_links = url_object["access"]
@@ -94,8 +91,8 @@ if __name__ == '__main__':
     for i in range(len(access_links)):
         if access_links[i]:
             if not re.search('^https?://', access_links[i]):
-                log_error_msg("Incorrect protocol used: {}".format(access_links[i]))
-                #logging.error("Incorrect protocol used: {}".format(access_links[i]))
+                #log_error_msg("Incorrect protocol used: {}".format(access_links[i]))
+                logging.error("Incorrect protocol used: {}".format(access_links[i]))
                 continue # Move on to the next iteration in the loop
             else:
                 log_filename = access_links[i].split('/')
@@ -104,9 +101,9 @@ if __name__ == '__main__':
     for i in range(len(error_links)):
         if error_links[i]:
             if not re.search('^https?://', error_links[i]):
-                log_error_msg("Incorrect protocol used: {}".format(access_links[i]))
-                #logging.error("Incorrect protocol used: {}".format(error_links[i]))
-                continue # Move on to the next iteration in the loop
+                #log_error_msg("Incorrect protocol used: {}".format(access_links[i]))
+                logging.error("Incorrect protocol used: {}".format(error_links[i]))
+                pass #continue # Move on to the next iteration in the loop
             else:
                 log_filename = re.findall('.*account_name=([^&]*)', error_links[i])
                 log_filename = log_filename[0]
