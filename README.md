@@ -20,6 +20,12 @@ This script can be called by a cron at a specific time  to download the day's lo
 # Change Log
 All notable changes to this project will be documented in this section.
 
+## [0.3.3] - 2020-12-26
+### Changed
+- Moved logging functionality to within __main__
+- Improved formatting for log messages
+### Added
+- Additional check for Apache error logs to ensure correct link is used
 ## [0.3.2] - 2020-12-13
 ### Changed
 - Reverted logging capability from a function due to a bug being introduced causing repeated error msg output

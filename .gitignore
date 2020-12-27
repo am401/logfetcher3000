@@ -130,5 +130,7 @@ dmypy.json
 
 # LogFetcher3000 JSON links file
 links.json
+test.json
 *.swp
+
 debug.log
