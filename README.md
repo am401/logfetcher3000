@@ -20,6 +20,9 @@ This script can be called by a cron at a specific time  to download the day's lo
 # Change Log
 All notable changes to this project will be documented in this section.
 
+## [0.3.5] - 2021-01-03
+### Fixed
+- Bug with unittest not running. Moved test_logfetcher3000.py to main project directory and updated import in file
 ## [0.3.4] - 2021-01-01
 ### Changed
 - Moved the main loops in to their own functions from __main__

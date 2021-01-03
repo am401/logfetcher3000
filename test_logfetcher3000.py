@@ -1,14 +1,18 @@
-import unittest
 import os
+import unittest
 
 from unittest.mock import patch
 
-import logfetcher3000
+from logfetcher3000.logfetcher3000 import *
 
 class TestLogFetcher3000(unittest.TestCase):
     @patch('os.path.isfile')
     def test_file_exists(self, mock_isfile):
         expected = 'links.json'
         mock_isfile.return_value = True
-        actual = logfetcher3000.file_exists('links.json')
+        actual = file_exists('links.json')
         self.assertEqual(actual, expected)
+
+
+if __name__ == '__main__':
+    unittest.main()
