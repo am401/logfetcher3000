@@ -13,10 +13,6 @@ def parse_args():
     parser.add_argument('-v', '--verbose', help='Toggle verbose debug logging', action='store_true')
     parser.add_argument('-f', '--file', default='links.json', help='Specify file to load in to application', type=file_exists)
     args = parser.parse_args()
-    #if len(sys.argv) == 1:
-    #    parser.print_help()
-    #    sys.exit()
-    #else:
     return args
 
 
@@ -62,6 +58,32 @@ def get_log(url, filename):
         logging.error("Unexpected HTTP response code received: {}".format(r.status_code))
 
 
+def access_links_loop(access_links):
+    for i in range(len(access_links)):
+        if access_links[i]:
+            if not re.search('^https?://', access_links[i]):
+                logging.error("Incorrect protocol used: {}".format(access_links[i]))
+                continue # Move on to the next iteration in the loop
+            else:
+                log_filename = access_links[i].split('/')
+                log_filename = log_filename[3]
+                get_log(access_links[i], '{}_access_{}.log'.format(log_filename, date_stamp))
+
+def error_links_loop(error_links):
+    for i in range(len(error_links)):
+        if error_links[i]:
+            if not re.search('^https?://', error_links[i]):
+                logging.error("Incorrect protocol used: {}".format(error_links[i]))
+                pass #continue # Move on to the next iteration in the loop
+            elif not re.search('.*account_name=', error_links[i]):
+                logging.error("Incorrect link detected: {}".format(error_links[i]))
+                pass
+            else:
+                log_filename = re.findall('.*account_name=([^&]*)', error_links[i])
+                log_filename = log_filename[0]
+                get_log(error_links[i], '{}_error_{}.log'.format(log_filename, date_stamp))
+
+
 if __name__ == '__main__':
     args = parse_args()
 
@@ -89,24 +111,5 @@ if __name__ == '__main__':
     access_links = url_object["access"]
     error_links = url_object["error"]
 
-    for i in range(len(access_links)):
-        if access_links[i]:
-            if not re.search('^https?://', access_links[i]):
-                logging.error("Incorrect protocol used: {}".format(access_links[i]))
-                continue # Move on to the next iteration in the loop
-            else:
-                log_filename = access_links[i].split('/')
-                log_filename = log_filename[3]
-                get_log(access_links[i], '{}_access_{}.log'.format(log_filename, date_stamp))
-    for i in range(len(error_links)):
-        if error_links[i]:
-            if not re.search('^https?://', error_links[i]):
-                logging.error("Incorrect protocol used: {}".format(error_links[i]))
-                pass #continue # Move on to the next iteration in the loop
-            elif not re.search('.*account_name=', error_links[i]):
-                logging.error("Incorrect link detected: {}".format(error_links[i]))
-                pass
-            else:
-                log_filename = re.findall('.*account_name=([^&]*)', error_links[i])
-                log_filename = log_filename[0]
-                get_log(error_links[i], '{}_error_{}.log'.format(log_filename, date_stamp))
+    access_links_loop(access_links)
+    error_links_loop(error_links)
