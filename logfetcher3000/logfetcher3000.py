@@ -50,12 +50,15 @@ def get_log(url, filename):
     :param filename: string
     """
     headers = {'User-Agent': 'LogFetcher3000'}
-    r = requests.get(url, allow_redirects=True, headers=headers)
-    if r.status_code == 200:
-        with open(filename, 'wb') as f:
-            f.write(r.content)
-    else:
-        logging.error("Unexpected HTTP response code received: {}".format(r.status_code))
+    try:
+        r = requests.get(url, allow_redirects=True, headers=headers, timeout=5)
+        if r.status_code == 200:
+            with open(filename, 'wb') as f:
+                f.write(r.content)
+        else:
+            logging.error("Unexpected HTTP response code received: {}".format(r.status_code))
+    except requests.exceptions.Timeout as e:
+        logging.error("Connection timeout: {}".format(e))
 
 
 def access_links_loop(access_links):
@@ -68,6 +71,7 @@ def access_links_loop(access_links):
                 log_filename = access_links[i].split('/')
                 log_filename = log_filename[3]
                 get_log(access_links[i], '{}_access_{}.log'.format(log_filename, date_stamp))
+
 
 def error_links_loop(error_links):
     for i in range(len(error_links)):
